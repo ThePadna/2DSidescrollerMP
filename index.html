@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="UTF-8"> 
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+		}
+		.game {
+			background: green;
+			background: url("Sprites/background.png");
+		}
+	</style>
+</head>
+<body>
+<canvas class="game" style="backgrou">
+</canvas>
+</body>
+	<script src="Game/GameObject.js"> </script>
+	<script src="Game/ScrollableObject.js"> </script>
+	<script src="Game/Scroller.js"> </script>
+	<script src="Game/Player.js"> </script>
+	<script type="text/javascript">
+		function startGame() {
+			let canvas = document.querySelector('.game');
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			let ctx = canvas.getContext("2d");
+			let pressedKeys = {};
+			window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
+			window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
+			let pImg = new Image();
+			pImg.src = "Sprites/Player.png";
+			let scrollableObjects = fillGameObjects(canvas);
+			let scroller = new Scroller(scrollableObjects);
+			let player = new Player(0, canvas.height - pImg.height, pImg, 5, canvas);
+			function draw() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				player.move(pressedKeys, scrollableObjects, scroller);
+				player.render(player.x, ctx);
+				scroller.render(canvas);
+				window.requestAnimationFrame(draw);
+			}
+			draw();
+		}
+		function fillGameObjects(canvas) {
+			let gameObjects = [];
+			let sbImg = new Image();
+			sbImg.src = "Sprites/grass.png";
+			gameObjects.push(new ScrollableObject(canvas.height - sbImg.height, sbImg, -100));
+			gameObjects.push(new ScrollableObject(canvas.height - sbImg.height, sbImg, 550));
+			let foreground = new Image();
+			foreground.src = "Sprites/grass_foreground.png";
+			let x = 0 - canvas.width;
+			for(let i = 0; i <= 10; i++) {
+				let obj = new ScrollableObject(canvas.height - foreground.height, foreground, x);
+				obj.setCollidable(false);
+				gameObjects.push(obj);
+				x += foreground.width;
+			}
+			return gameObjects;
+		}
+		startGame();
+	</script>
+</html>
